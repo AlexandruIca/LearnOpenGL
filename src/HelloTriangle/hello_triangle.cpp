@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <memory>
 #include <string>
+#include <vector>
 
 auto sdl_error(std::string const& msg) -> void
 {
@@ -71,8 +72,102 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
 
     spdlog::info("[OpenGL] Context created! Version {}.{}", GLVersion.major, GLVersion.minor);
 
+    std::vector<GLfloat> const vertices = {
+        0.5F, 0.5F, 0.0F, 0.5F, -0.5F, 0.0F, -0.5F, -0.5F, 0.0F, -0.5F, 0.5F, 0.0F
+    };
+
+    std::vector<unsigned int> indices = { 0, 1, 3, 1, 2, 3 };
+
+    char const* const vertex_shader_source = R"(
+    #version 460 core
+
+    layout(location = 0) in vec3 pos;
+
+    void main() {
+        gl_Position = vec4(pos.xyz, 1.0);
+    }
+    )";
+
+    char const* const fragment_shader_source = R"(
+    #version 460 core
+
+    out vec4 fragColor;
+
+    void main() {
+        fragColor = vec4(1.0f, 0.5f, 0.25f, 1.0f);
+    }
+    )";
+
+    unsigned int vao = 0;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    unsigned int vbo = 0;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
+
+    unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &vertex_shader_source, nullptr);
+    glCompileShader(vertex_shader);
+
+    int success = 0;
+    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
+
+    if(success == 0) {
+        int log_length = 0;
+        glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &log_length);
+
+        std::unique_ptr<char> shader_log{ new char[log_length] };
+
+        glGetShaderInfoLog(vertex_shader, log_length, nullptr, shader_log.get());
+        spdlog::error("[Vertex Shader] Error compiling vertex shader: {}!", shader_log.get());
+    }
+
+    unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, &fragment_shader_source, nullptr);
+    glCompileShader(fragment_shader);
+
+    int success2 = 0;
+    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success2);
+
+    if(success2 == 0) {
+        int log_length = 0;
+        glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &log_length);
+        std::unique_ptr<char> shader_log{ new char[log_length] };
+        glGetShaderInfoLog(fragment_shader, log_length, nullptr, shader_log.get());
+        spdlog::error("[Fragment Shader] Error compiling fragment shader: {}!", shader_log.get());
+    }
+
+    unsigned int shader_program = glCreateProgram();
+    glAttachShader(shader_program, vertex_shader);
+    glAttachShader(shader_program, fragment_shader);
+    glLinkProgram(shader_program);
+
+    int success3 = 0;
+    glGetProgramiv(shader_program, GL_LINK_STATUS, &success3);
+
+    if(success3 == 0) {
+        int program_log_length = 0;
+        glGetProgramiv(shader_program, GL_INFO_LOG_LENGTH, &program_log_length);
+        std::unique_ptr<char> program_log{ new char[program_log_length] };
+        glGetProgramInfoLog(shader_program, program_log_length, nullptr, program_log.get());
+        spdlog::error("[Shader Linking] Error linking shaders: {}!", program_log.get());
+    }
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
+    glEnableVertexAttribArray(0);
+
+    unsigned int ibo = 0;
+    glGenBuffers(1, &ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
     bool window_should_close = false;
-    constexpr color clear_color{ 0.25F, 0.45F, 0.15F, 1.0F };
+    constexpr color clear_color{ 0.0F, 0.0F, 0.0F, 1.0F };
 
     while(!window_should_close) {
         SDL_Event e;
@@ -96,6 +191,14 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
 
         glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glUseProgram(shader_program);
+        glBindVertexArray(vao);
+
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
+
+        glBindVertexArray(0);
+        glUseProgram(0);
 
         SDL_GL_SwapWindow(window.get());
     }
