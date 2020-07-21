@@ -1,0 +1,6 @@
+/build/
+compile_commands.json
+scripts/clang-tidy.sh
+scripts/clang-format.sh
+.clangd
+.diff_deleteme.txt
