@@ -1,0 +1,7 @@
+[requires]
+spdlog/1.6.0
+sdl2/2.0.12@bincrafters/stable
+glad/0.1.33
+
+[generators]
+cmake_find_package
