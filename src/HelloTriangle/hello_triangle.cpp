@@ -21,6 +21,39 @@ struct color
     GLfloat a = 1.0F;
 };
 
+enum class shader_type
+{
+    vertex = GL_VERTEX_SHADER,
+    fragment = GL_FRAGMENT_SHADER
+};
+
+[[nodiscard]] auto create_shader(shader_type const type, const char* const source) -> unsigned int
+{
+    unsigned int shader = glCreateShader((type == shader_type::vertex) ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
+    glShaderSource(shader, 1, &source, nullptr);
+    glCompileShader(shader);
+
+    int success = 0;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+    if(success == 0) {
+        int log_length = 0;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_length);
+
+        std::unique_ptr<char> shader_log{ new char[log_length] };
+
+        glGetShaderInfoLog(shader, log_length, nullptr, shader_log.get());
+        if(type == shader_type::vertex) {
+            spdlog::error("[Vertex Shader] Error compiling vertex shader: {}!", shader_log.get());
+        }
+        else {
+            spdlog::error("[Fragment Shader] Error compiling fragment shader: {}!", shader_log.get());
+        }
+    }
+
+    return shader;
+}
+
 auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> int
 {
     spdlog::info("Hello triangle!");
@@ -79,7 +112,7 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     std::vector<unsigned int> indices = { 0, 1, 3, 1, 2, 3 };
 
     char const* const vertex_shader_source = R"(
-    #version 460 core
+    #version 330 core
 
     layout(location = 0) in vec3 pos;
 
@@ -89,7 +122,7 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     )";
 
     char const* const fragment_shader_source = R"(
-    #version 460 core
+    #version 330 core
 
     out vec4 fragColor;
 
@@ -107,37 +140,8 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
 
-    unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vertex_shader_source, nullptr);
-    glCompileShader(vertex_shader);
-
-    int success = 0;
-    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
-
-    if(success == 0) {
-        int log_length = 0;
-        glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &log_length);
-
-        std::unique_ptr<char> shader_log{ new char[log_length] };
-
-        glGetShaderInfoLog(vertex_shader, log_length, nullptr, shader_log.get());
-        spdlog::error("[Vertex Shader] Error compiling vertex shader: {}!", shader_log.get());
-    }
-
-    unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &fragment_shader_source, nullptr);
-    glCompileShader(fragment_shader);
-
-    int success2 = 0;
-    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success2);
-
-    if(success2 == 0) {
-        int log_length = 0;
-        glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &log_length);
-        std::unique_ptr<char> shader_log{ new char[log_length] };
-        glGetShaderInfoLog(fragment_shader, log_length, nullptr, shader_log.get());
-        spdlog::error("[Fragment Shader] Error compiling fragment shader: {}!", shader_log.get());
-    }
+    auto const vertex_shader = create_shader(shader_type::vertex, vertex_shader_source);
+    auto const fragment_shader = create_shader(shader_type::fragment, fragment_shader_source);
 
     unsigned int shader_program = glCreateProgram();
     glAttachShader(shader_program, vertex_shader);
