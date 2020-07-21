@@ -54,6 +54,27 @@ enum class shader_type
     return shader;
 }
 
+[[nodiscard]] auto create_program(unsigned int vs, unsigned int fs) -> unsigned int
+{
+    unsigned int shader_program = glCreateProgram();
+    glAttachShader(shader_program, vs);
+    glAttachShader(shader_program, fs);
+    glLinkProgram(shader_program);
+
+    int success = 0;
+    glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
+
+    if(success == 0) {
+        int program_log_length = 0;
+        glGetProgramiv(shader_program, GL_INFO_LOG_LENGTH, &program_log_length);
+        std::unique_ptr<char> program_log{ new char[program_log_length] };
+        glGetProgramInfoLog(shader_program, program_log_length, nullptr, program_log.get());
+        spdlog::error("[Shader Linking] Error linking shaders: {}!", program_log.get());
+    }
+
+    return shader_program;
+}
+
 auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> int
 {
     spdlog::info("Hello triangle!");
@@ -140,27 +161,12 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
 
-    auto const vertex_shader = create_shader(shader_type::vertex, vertex_shader_source);
-    auto const fragment_shader = create_shader(shader_type::fragment, fragment_shader_source);
-
-    unsigned int shader_program = glCreateProgram();
-    glAttachShader(shader_program, vertex_shader);
-    glAttachShader(shader_program, fragment_shader);
-    glLinkProgram(shader_program);
-
-    int success3 = 0;
-    glGetProgramiv(shader_program, GL_LINK_STATUS, &success3);
-
-    if(success3 == 0) {
-        int program_log_length = 0;
-        glGetProgramiv(shader_program, GL_INFO_LOG_LENGTH, &program_log_length);
-        std::unique_ptr<char> program_log{ new char[program_log_length] };
-        glGetProgramInfoLog(shader_program, program_log_length, nullptr, program_log.get());
-        spdlog::error("[Shader Linking] Error linking shaders: {}!", program_log.get());
-    }
-
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
     glEnableVertexAttribArray(0);
+
+    auto const vertex_shader = create_shader(shader_type::vertex, vertex_shader_source);
+    auto const fragment_shader = create_shader(shader_type::fragment, fragment_shader_source);
+    auto const shader_program = create_program(vertex_shader, fragment_shader);
 
     unsigned int ibo = 0;
     glGenBuffers(1, &ibo);
