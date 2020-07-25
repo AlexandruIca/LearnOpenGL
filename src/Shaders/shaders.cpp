@@ -132,18 +132,25 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     spdlog::info("[OpenGL] Max number of vertex attributes: {}", num_attributes);
 
     std::vector<GLfloat> const vertices = {
-        0.5F, 0.5F, 0.0F, 0.5F, -0.5F, 0.0F, -0.5F, -0.5F, 0.0F, -0.5F, 0.5F, 0.0F
+        // positions         // colors
+        0.5F,  -0.5F, 0.0F, 1.0F, 0.0F, 0.0F, // bottom right
+        -0.5F, -0.5F, 0.0F, 0.0F, 1.0F, 0.0F, // bottom left
+        0.0F,  0.5F,  0.0F, 0.0F, 0.0F, 1.0F  // top
     };
 
-    std::vector<unsigned int> indices = { 0, 1, 3, 1, 2, 3 };
+    std::vector<unsigned int> indices = { 0, 1, 2 };
 
     char const* const vertex_shader_source = R"(
     #version 330 core
 
     layout(location = 0) in vec3 pos;
+    layout(location = 1) in vec3 color;
+
+    out vec3 ourColor;
 
     void main() {
         gl_Position = vec4(pos.xyz, 1.0);
+        ourColor = color;
     }
     )";
 
@@ -151,10 +158,10 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     #version 330 core
 
     out vec4 fragColor;
-    uniform vec4 ourColor;
+    in vec3 ourColor;
 
     void main() {
-        fragColor = ourColor;
+        fragColor = vec4(ourColor, 1.0);
     }
     )";
 
@@ -167,8 +174,11 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), nullptr); // NOLINT
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // NOLINT
+    glEnableVertexAttribArray(1);
 
     auto const vertex_shader = create_shader(shader_type::vertex, vertex_shader_source);
     auto const fragment_shader = create_shader(shader_type::fragment, fragment_shader_source);
