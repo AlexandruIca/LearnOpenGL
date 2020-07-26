@@ -22,6 +22,7 @@ enable_sanitizers(project_options)
 find_package(SDL2 REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(glad REQUIRED)
+find_package(glm REQUIRED)
 find_package(stb REQUIRED)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/)
