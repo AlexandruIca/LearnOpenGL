@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <spdlog/spdlog.h>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -219,9 +220,16 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
             }
         }
 
+        /*
         glm::mat4 transf{ 1.0F };
         transf = glm::translate(transf, glm::vec3{ translate_factor, -translate_factor, 0.0F });
         transf = glm::rotate(transf, SDL_GetTicks() / to_seconds, glm::vec3{ 0.0F, 0.0F, 1.0F });
+        */
+        glm::quat my_quaternion = glm::angleAxis(SDL_GetTicks() / to_seconds, glm::vec3{ 0.0F, 0.0F, 1.0F });
+        glm::mat4 rotation = glm::toMat4(my_quaternion);
+        glm::mat4 transf{ 1.0F };
+        transf = glm::translate(transf, glm::vec3{ translate_factor, -translate_factor, 0.0F });
+        transf = transf * rotation;
 
         glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
         glClear(GL_COLOR_BUFFER_BIT);
