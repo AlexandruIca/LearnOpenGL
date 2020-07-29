@@ -181,7 +181,7 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     transf = glm::rotate(transf, glm::radians(rotation_angle), glm::vec3{ 0.0F, 0.0F, 1.0F });
     transf = glm::scale(transf, glm::vec3{ scale_factor, scale_factor, scale_factor });
     */
-    constexpr float translate_factor = 0.1F;
+    constexpr float translate_factor = 0.0F;
     constexpr float to_seconds = 1'000.0F;
 
     shader_program.use();
