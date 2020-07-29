@@ -174,16 +174,20 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    /*
     constexpr float rotation_angle = 90.0F;
     constexpr float scale_factor = 0.5F;
     glm::mat4 transf{ 1.0F };
     transf = glm::rotate(transf, glm::radians(rotation_angle), glm::vec3{ 0.0F, 0.0F, 1.0F });
     transf = glm::scale(transf, glm::vec3{ scale_factor, scale_factor, scale_factor });
+    */
+    constexpr float translate_factor = 0.1F;
+    constexpr float to_seconds = 1'000.0F;
 
     shader_program.use();
     shader_program.set_int("texture1", 0);
     shader_program.set_int("texture2", 1);
-    shader_program.set_mat4("transform", transf);
+    // shader_program.set_mat4("transform", transf);
     shader::unbind();
 
     bool window_should_close = false;
@@ -215,6 +219,10 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
             }
         }
 
+        glm::mat4 transf{ 1.0F };
+        transf = glm::translate(transf, glm::vec3{ translate_factor, -translate_factor, 0.0F });
+        transf = glm::rotate(transf, SDL_GetTicks() / to_seconds, glm::vec3{ 0.0F, 0.0F, 1.0F });
+
         glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -224,6 +232,7 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
         glBindTexture(GL_TEXTURE_2D, texture2);
 
         shader_program.use();
+        shader_program.set_mat4("transform", transf);
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 
