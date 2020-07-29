@@ -183,6 +183,7 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     transf = glm::scale(transf, glm::vec3{ scale_factor, scale_factor, scale_factor });
     */
     constexpr float translate_factor = 0.0F;
+    constexpr float scale_factor = 2.5F;
     constexpr float to_seconds = 1'000.0F;
 
     shader_program.use();
@@ -230,6 +231,7 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
         glm::mat4 transf{ 1.0F };
         transf = glm::translate(transf, glm::vec3{ translate_factor, -translate_factor, 0.0F });
         transf = transf * rotation;
+        transf = glm::scale(transf, glm::vec3{ scale_factor, scale_factor, scale_factor });
 
         glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
         glClear(GL_COLOR_BUFFER_BIT);
