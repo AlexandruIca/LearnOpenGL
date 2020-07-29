@@ -1,5 +1,6 @@
 #include "util/shader.hpp"
 
+#include <glm/gtc/type_ptr.hpp>
 #include <spdlog/spdlog.h>
 
 #include <fstream>
@@ -93,6 +94,11 @@ auto shader::set_int(std::string const& id, int const value) const noexcept -> v
 auto shader::set_float(std::string const& id, float const value) const noexcept -> void
 {
     glUniform1f(glGetUniformLocation(m_id, id.c_str()), value);
+}
+
+auto shader::set_mat4(std::string const& id, glm::mat4 const& value) const noexcept -> void
+{
+    glUniformMatrix4fv(glGetUniformLocation(m_id, id.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 }
 
 auto shader::unbind() noexcept -> void

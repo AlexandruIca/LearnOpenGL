@@ -3,6 +3,7 @@
 #pragma once
 
 #include <glad/glad.h>
+#include <glm/glm.hpp>
 
 #include <string>
 
@@ -36,6 +37,7 @@ public:
     auto set_bool(std::string const& id, bool value) const noexcept -> void;
     auto set_int(std::string const& id, int value) const noexcept -> void;
     auto set_float(std::string const& id, float value) const noexcept -> void;
+    auto set_mat4(std::string const& id, glm::mat4 const& value) const noexcept -> void;
 
     static auto unbind() noexcept -> void;
 };
