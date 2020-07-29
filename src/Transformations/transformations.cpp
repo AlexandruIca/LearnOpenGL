@@ -34,12 +34,6 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
 {
     spdlog::info("Hello triangle!");
 
-    glm::vec4 vec{ 1.0F, 0.0F, 0.0F, 1.0F };
-    glm::mat4 translate{ 1.0F };
-    translate = glm::translate(translate, glm::vec3{ 1.0F, 1.0F, 0.0F });
-    vec = translate * vec;
-    spdlog::info("Translating (1, 0, 0) by (1, 1, 0) resulted in: ({}, {}, {})", vec.x, vec.y, vec.z);
-
     auto sdl_window_deleter = [](SDL_Window* w) noexcept {
         SDL_DestroyWindow(w);
         SDL_Quit();
@@ -180,9 +174,16 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    constexpr float rotation_angle = 90.0F;
+    constexpr float scale_factor = 0.5F;
+    glm::mat4 transf{ 1.0F };
+    transf = glm::rotate(transf, glm::radians(rotation_angle), glm::vec3{ 0.0F, 0.0F, 1.0F });
+    transf = glm::scale(transf, glm::vec3{ scale_factor, scale_factor, scale_factor });
+
     shader_program.use();
     shader_program.set_int("texture1", 0);
     shader_program.set_int("texture2", 1);
+    shader_program.set_mat4("transform", transf);
     shader::unbind();
 
     bool window_should_close = false;
