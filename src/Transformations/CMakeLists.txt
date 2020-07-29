@@ -1,0 +1,7 @@
+add_executable(Transformations ${CMAKE_CURRENT_SOURCE_DIR}/transformations.cpp)
+target_link_libraries(Transformations PRIVATE spdlog::spdlog SDL2::SDL2 glad::glad stb::stb glm::glm util)
+copy_file(shader.vs.glsl Transformations)
+copy_file(shader.fs.glsl Transformations)
+copy_file(wall.jpg Transformations)
+copy_file(container.jpg Transformations)
+copy_file(awesomeface.png Transformations)
