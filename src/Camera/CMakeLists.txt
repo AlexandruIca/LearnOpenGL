@@ -1,0 +1,7 @@
+add_executable(Camera ${CMAKE_CURRENT_SOURCE_DIR}/camera.cpp)
+target_link_libraries(Camera PRIVATE spdlog::spdlog SDL2::SDL2 glad::glad stb::stb glm::glm util)
+copy_file(shader.vs.glsl Camera)
+copy_file(shader.fs.glsl Camera)
+copy_file(wall.jpg Camera)
+copy_file(container.jpg Camera)
+copy_file(awesomeface.png Camera)
