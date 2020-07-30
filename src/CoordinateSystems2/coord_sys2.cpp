@@ -10,6 +10,7 @@
 #include <stb_image.h>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdlib>
 #include <memory>
@@ -189,12 +190,6 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    /*
-    constexpr float translate_factor = 0.0F;
-    constexpr float scale_factor = 0.5F;
-    constexpr float to_seconds = 1'000.0F;
-    */
-
     constexpr float translate_factor{ -3.0F };
     glm::mat4 view{ 1.0F };
     view = glm::translate(view, glm::vec3{ 0.0F, 0.0F, translate_factor });
@@ -205,6 +200,15 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     constexpr float near = 0.1F;
     constexpr float far = 100.0F;
     glm::mat4 projection = glm::perspective(glm::radians(fov), width / height, near, far);
+
+    constexpr int num_cubes = 10;
+    std::array<glm::vec3, num_cubes> positions = {
+        glm::vec3{ 0.0f, 0.0f, 0.0f },    glm::vec3{ 2.0f, 5.0f, -15.0f },   // NOLINT
+        glm::vec3{ -1.5f, -2.2f, -2.5f }, glm::vec3{ -3.8f, -2.0f, -12.3f }, // NOLINT
+        glm::vec3{ 2.4f, -0.4f, -3.5f },  glm::vec3{ -1.7f, 3.0f, -7.5f },   // NOLINT
+        glm::vec3{ 1.3f, -2.0f, -2.5f },  glm::vec3{ 1.5f, 2.0f, -2.5f },    // NOLINT
+        glm::vec3{ 1.5f, 0.2f, -1.5f },   glm::vec3{ -1.3f, 1.0f, -1.5f }    // NOLINT
+    };
 
     shader_program.use();
     shader_program.set_int("texture1", 0);
@@ -250,11 +254,6 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
             }
         }
 
-        constexpr float rotation_angle = -55.0F;
-        constexpr float to_seconds = 1000.0F;
-        constexpr float rot = 0.5F;
-        glm::mat4 model = glm::toMat4(glm::angleAxis(SDL_GetTicks() / to_seconds, glm::vec3{ rot, 1.0F, 0.0F }));
-
         glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -264,9 +263,17 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
         glBindTexture(GL_TEXTURE_2D, texture2);
 
         shader_program.use();
-        shader_program.set_mat4("model", model);
         glBindVertexArray(vao);
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
+        for(std::size_t i = 0; i < positions.size(); ++i) {
+            glm::mat4 model{ 1.0F };
+            model = glm::translate(model, positions[i]);
+            constexpr float to_seconds = 1'000.0F;
+            float angle = i * 20.0F * (SDL_GetTicks() / to_seconds);                                         // NOLINT
+            model = model * glm::toMat4(glm::angleAxis(glm::radians(angle), glm::vec3{ 0.0F, 0.0F, 0.5F })); // NOLINT
+            shader_program.set_mat4("model", model);
+
+            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
+        }
 
         glBindVertexArray(0);
         shader::unbind();
