@@ -1,0 +1,5 @@
+add_executable(DVD ${CMAKE_CURRENT_SOURCE_DIR}/dvd_sv.cpp)
+target_link_libraries(DVD PRIVATE spdlog::spdlog SDL2::SDL2 glad::glad stb::stb glm::glm util)
+copy_file(shader.vs.glsl DVD)
+copy_file(shader.fs.glsl DVD)
+copy_file(DVD_ScrrenSaver2.png DVD)
