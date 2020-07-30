@@ -183,7 +183,7 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     transf = glm::scale(transf, glm::vec3{ scale_factor, scale_factor, scale_factor });
     */
     constexpr float translate_factor = 0.0F;
-    constexpr float scale_factor = 2.5F;
+    constexpr float scale_factor = 0.5F;
     constexpr float to_seconds = 1'000.0F;
 
     shader_program.use();
