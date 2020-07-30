@@ -1,0 +1,7 @@
+add_executable(CoordinateSystems ${CMAKE_CURRENT_SOURCE_DIR}/coord_sys.cpp)
+target_link_libraries(CoordinateSystems PRIVATE spdlog::spdlog SDL2::SDL2 glad::glad stb::stb glm::glm util)
+copy_file(shader.vs.glsl CoordinateSystems)
+copy_file(shader.fs.glsl CoordinateSystems)
+copy_file(wall.jpg CoordinateSystems)
+copy_file(container.jpg CoordinateSystems)
+copy_file(awesomeface.png CoordinateSystems)
