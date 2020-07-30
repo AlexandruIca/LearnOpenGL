@@ -96,6 +96,11 @@ auto shader::set_float(std::string const& id, float const value) const noexcept 
     glUniform1f(glGetUniformLocation(m_id, id.c_str()), value);
 }
 
+auto shader::set_vec4(std::string const& id, glm::vec4 const& value) const noexcept -> void
+{
+    glUniform4f(glGetUniformLocation(m_id, id.c_str()), value.x, value.y, value.z, value.w);
+}
+
 auto shader::set_mat4(std::string const& id, glm::mat4 const& value) const noexcept -> void
 {
     glUniformMatrix4fv(glGetUniformLocation(m_id, id.c_str()), 1, GL_FALSE, glm::value_ptr(value));
