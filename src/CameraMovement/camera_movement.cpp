@@ -84,6 +84,9 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
         std::exit(EXIT_FAILURE);
     }
 
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    SDL_CaptureMouse(SDL_TRUE);
+
     spdlog::info("[OpenGL] Context created! Version {}.{}", GLVersion.major, GLVersion.minor);
 
     int num_attributes = 0;
