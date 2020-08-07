@@ -48,8 +48,8 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     using window_t = std::unique_ptr<SDL_Window, decltype(sdl_window_deleter)>;
     using renderer_t = std::unique_ptr<SDL_Renderer, decltype(sdl_renderer_deleter)>;
 
-    constexpr int window_width = 1280;
-    constexpr int window_height = 720;
+    int window_width = 1280; // NOLINT
+    int window_height = 720; // NOLINT
 
     if(SDL_Init(SDL_INIT_VIDEO) != 0) {
         sdl_error("Couldn't initialize SDL");
@@ -195,12 +195,12 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
     glm::vec3 camera_front{ 0.0F, 0.0F, -1.0F };
     glm::vec3 camera_up{ 0.0F, 1.0F, 0.0F };
 
-    constexpr float width = 1280.0F;
-    constexpr float height = 720.0F;
+    auto const fwidth = static_cast<float>(window_width);
+    auto const fheight = static_cast<float>(window_height);
     float fov = 45.0F; // NOLINT
     constexpr float near = 0.1F;
     constexpr float far = 100.0F;
-    glm::mat4 projection = glm::perspective(glm::radians(fov), width / height, near, far);
+    glm::mat4 projection = glm::perspective(glm::radians(fov), fwidth / fheight, near, far);
 
     constexpr int num_cubes = 10;
     std::array<glm::vec3, num_cubes> positions = {
@@ -245,6 +245,8 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
             }
             case SDL_WINDOWEVENT: {
                 if(e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                    window_width = e.window.data1;
+                    window_height = e.window.data2;
                     glViewport(0, 0, e.window.data1, e.window.data2);
                     shader_program.use();
                     shader_program.set_mat4(
@@ -304,7 +306,8 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
                         fov = 45.0F;  // NOLINT
                     }
 
-                    glm::mat4 proj = glm::perspective(glm::radians(fov), width / height, near, far);
+                    float const a = static_cast<float>(window_width) / static_cast<float>(window_height);
+                    glm::mat4 proj = glm::perspective(glm::radians(fov), a, near, far);
 
                     shader_program.use();
                     shader_program.set_mat4("projection", proj);
