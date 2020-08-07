@@ -333,7 +333,7 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) noexcept -> 
         x_offset *= sensitivity;
         y_offset *= sensitivity;
 
-        yaw += x_offset;
+        yaw = glm::mod(yaw + x_offset, 360.0F); // NOLINT
         pitch += y_offset;
 
         constexpr float pitch_limit = 89.0F;
