@@ -1,0 +1,7 @@
+add_executable(CameraMovement ${CMAKE_CURRENT_SOURCE_DIR}/camera_movement.cpp)
+target_link_libraries(CameraMovement PRIVATE spdlog::spdlog SDL2::SDL2 glad::glad stb::stb glm::glm util)
+copy_file(shader.vs.glsl CameraMovement)
+copy_file(shader.fs.glsl CameraMovement)
+copy_file(wall.jpg CameraMovement)
+copy_file(container.jpg CameraMovement)
+copy_file(awesomeface.png CameraMovement)
