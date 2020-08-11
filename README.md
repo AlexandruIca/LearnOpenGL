@@ -12,3 +12,5 @@ The [learnopengl](https://learnopengl.com/) website!
 ![DVD Screen Saver](./media/Sample_DVD.gif)
 
 ![Rotating Camera](./media/Sample_rotating_camera.gif)
+
+![FPS Camera](./media/Sample_FPS_camera.gif)
