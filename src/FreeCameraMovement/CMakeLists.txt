@@ -1,0 +1,7 @@
+add_executable(FreeCameraMovement ${CMAKE_CURRENT_SOURCE_DIR}/free_camera_movement.cpp)
+target_link_libraries(FreeCameraMovement PRIVATE spdlog::spdlog SDL2::SDL2 glad::glad stb::stb glm::glm util)
+copy_file(shader.vs.glsl FreeCameraMovement)
+copy_file(shader.fs.glsl FreeCameraMovement)
+copy_file(wall.jpg FreeCameraMovement)
+copy_file(container.jpg FreeCameraMovement)
+copy_file(awesomeface.png FreeCameraMovement)
